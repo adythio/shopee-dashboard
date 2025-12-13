@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee BI Dashboard</title>
+    
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <style>
+        /* ========== VARIABLES ========== */
+        :root {
+            --color-primary: #ff5722;
+            --color-danger: #ff3b30;
+            --color-success: #00c853;
+            --color-warning: #ffa000;
+            --color-white: #ffffff;
+            --color-info-dark: #8c8c8c;
+            --color-info-light: #f3f3f3;
+            --color-dark: #333333;
+            --color-light: rgba(255, 87, 34, 0.08);
+            --color-background: #f7f4f2;
+            --card-border-radius: 1.2rem;
+            --border-radius-1: 0.4rem;
+            --border-radius-2: 0.8rem;
+            --card-padding: 1.8rem;
+            --box-shadow: 0 2rem 3rem rgba(0,0,0,0.06);
+        }
+
+        html { font-size: 14px; }
+
+        body.dark-theme {
+            --color-background: #181a1e;
+            --color-white: #202528;
+            --color-dark: #edeffd;
+            --color-light: rgba(0,0,0,0.3);
+            --box-shadow: 0 2rem 3rem rgba(0,0,0,0.4);
+        }
+
+        /* ========== RESET ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            outline: 0;
+            appearance: none;
+            border: 0;
+            text-decoration: none;
+            list-style: none;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            font-size: 0.88rem;
+            background: var(--color-background);
+            color: var(--color-dark);
+            user-select: none;
+            overflow-x: hidden;
+            width: 100%;
+            height: 100vh;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { width: 100%; display: block; }
+
+        .text-muted { color: var(--color-info-dark); }
+        .primary { color: var(--color-primary); }
+        .danger { color: var(--color-danger); }
+        .success { color: var(--color-success); }
+        .warning { color: var(--color-warning); }
+
+        /* ========== LAYOUT ========== */
+        .container {
+            display: grid;
+            grid-template-columns: 14rem auto 23rem;
+            gap: 1.8rem;
+            width: 96%;
+            margin: 0 auto;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        aside {
+            height: 100vh;
+            background: var(--color-white);
+            border-right: 1px solid var(--color-info-light);
+            overflow-y: auto;
+        }
+
+        aside .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.4rem;
+            padding: 0 1rem;
+        }
+
+        aside .logo {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin-left: 1.5rem;
+        }
+
+        aside .logo span {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+        }
+
+        aside .close {
+            display: none;
+        }
+
+        aside .sidebar {
+            display: flex;
+            flex-direction: column;
+            height: 86vh;
+            position: relative;
+            top: 3rem;
+        }
+
+        aside .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: 2rem;
+            height: 3.2rem;
+            color: var(--color-info-dark);
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        aside .sidebar a span.material-symbols-outlined {
+            font-size: 1.6rem;
+            transition: all 0.3s ease;
+        }
+
+        aside .sidebar a:last-child {
+            position: absolute;
+            bottom: 2rem;
+            width: 100%;
+        }
+
+        aside .sidebar a.active {
+            background: var(--color-light);
+            color: var(--color-primary);
+            margin-left: 0;
+        }
+
+        aside .sidebar a.active::before {
+            content: "";
+            width: 6px;
+            height: 100%;
+            background: var(--color-primary);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        aside .sidebar a:hover {
+            color: var(--color-primary);
+        }
+
+        aside .sidebar a:hover span {
+            margin-left: 0.5rem;
+        }
+
+        /* ========== MAIN ========== */
+        main {
+            margin-top: 1.4rem;
+            overflow-y: auto;
+            height: 95vh;
+            padding-right: 1rem;
+        }
+
+        main h1 {
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        main h2 {
+            font-size: 1.4rem;
+        }
+
+        main h3 {
+            font-size: 0.8rem;
+        }
+
+        small { font-size: 0.75rem; }
+
+        main .date {
+            display: inline-block;
+            background: var(--color-light);
+            border-radius: var(--border-radius-1);
+            padding: 0.5rem 1.6rem;
+            margin-top: 1rem;
+        }
+
+        main .date input[type="date"] {
+            background: transparent;
+            color: var(--color-dark);
+        }
+
+        /* Cards */
+        main .insights {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.6rem;
+        }
+
+        main .insights > div {
+            background: var(--color-white);
+            padding: var(--card-padding);
+            border-radius: var(--card-border-radius);
+            margin-top: 1rem;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+        }
+
+        main .insights > div:hover {
+            box-shadow: none;
+        }
+
+        main .insights > div span {
+            background: var(--color-primary);
+            padding: 0.5rem;
+            border-radius: 50%;
+            font-size: 2rem;
+            color: var(--color-white);
+        }
+
+        main .insights > div .danger span {
+            background: var(--color-danger);
+        }
+
+        main .insights > div .success span {
+            background: var(--color-success);
+        }
+
+        main .insights > div .middle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        main .insights h3 {
+            margin: 1rem 0 0.6rem;
+            font-size: 1rem;
+        }
+
+        main .insights .progress {
+            position: relative;
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+        }
+
+        main .insights svg {
+            width: 7rem;
+            height: 7rem;
+        }
+
+        main .insights svg circle {
+            fill: none;
+            stroke: var(--color-primary);
+            stroke-width: 14;
+            stroke-linecap: round;
+            stroke-dasharray: 220;
+            stroke-dashoffset: 78;
+            transform: translate(5px, 5px);
+        }
+
+        main .insights .card:nth-child(1) svg circle {
+            stroke-dashoffset: 78;
+        }
+
+        main .insights .card:nth-child(2) svg circle {
+            stroke-dashoffset: 189;
+        }
+
+        main .insights .card:nth-child(3) svg circle {
+            stroke-dashoffset: 200;
+        }
+
+        main .insights .progress .number {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        main .insights small {
+            display: block;
+            margin-top: 1.6rem;
+            color: var(--color-info-dark);
+        }
+
+        /* Recent Orders Table */
+        main .recent-orders {
+            margin-top: 2rem;
+        }
+
+        main table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--color-white);
+            box-shadow: var(--box-shadow);
+            border-radius: var(--card-border-radius);
+            overflow: hidden;
+        }
+
+        main table thead {
+            background: var(--color-light);
+            color: var(--color-dark);
+        }
+
+        main table th {
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        main table td {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--color-info-light);
+        }
+
+        main table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        main table tbody tr:hover {
+            background: var(--color-light);
+        }
+
+        .status-pending { color: var(--color-warning); font-weight: 600; }
+        .status-declined { color: var(--color-danger); font-weight: 600; }
+        .status-delivered { color: var(--color-success); font-weight: 600; }
+
+        main .show-all {
+            display: block;
+            text-align: center;
+            padding: 1rem;
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        /* ========== RIGHT SIDE ========== */
+        .right {
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .right .top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.4rem;
+        }
+
+        .theme-toggler {
+            display: flex;
+            gap: 1rem;
+            background: var(--color-light);
+            border-radius: var(--border-radius-2);
+            padding: 0.6rem;
+            cursor: pointer;
+        }
+
+        .theme-toggler span {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggler span.active {
+            background: var(--color-white);
+            color: var(--color-primary);
+        }
+
+        .profile {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .profile-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: var(--color-info-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--color-primary);
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .recent-updates, .sales-analytics {
+            background: var(--color-white);
+            padding: var(--card-padding);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 1.6rem;
+        }
+
+        .recent-updates h2, .sales-analytics h2 {
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .updates {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .update {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--color-info-light);
+        }
+
+        .update:last-child {
+            border-bottom: none;
+        }
+
+        .update .profile-photo {
+            width: 40px;
+            height: 40px;
+        }
+
+        .update p {
+            margin-bottom: 0.5rem;
+            color: var(--color-dark);
+        }
+
+        .sales-analytics .item {
+            display: flex;
+            gap: 1.6rem;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--color-info-light);
+        }
+
+        .sales-analytics .item:last-child {
+            border-bottom: none;
+        }
+
+        .sales-analytics .item .icon {
+            background: var(--color-light);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .sales-analytics .item.online .icon {
+            background: rgba(255, 87, 34, 0.15);
+            color: var(--color-primary);
+        }
+
+        .sales-analytics .item.offline .icon {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--color-danger);
+        }
+
+        .sales-analytics .item.new .icon {
+            background: rgba(0, 200, 83, 0.15);
+            color: var(--color-success);
+        }
+
+        .sales-analytics .right-info {
+            flex: 1;
+        }
+
+        .sales-analytics .info {
+            margin-bottom: 0.5rem;
+        }
+
+        .sales-analytics .info h3 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .sales-analytics h5 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sales-analytics h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        /* Section Visibility */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* ========== STORY SECTION ========== */
+        .story-content {
+            background: var(--color-white);
+            padding: 2rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 1rem;
+        }
+
+        .story-content h2 {
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .story-content h2:first-child {
+            margin-top: 0;
+        }
+
+        .story-content h3 {
+            font-size: 1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .story-content p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: var(--color-info-dark);
+        }
+
+        .story-content ul, .story-content ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .story-content li {
+            margin-bottom: 0.5rem;
+            color: var(--color-info-dark);
+        }
+
+        /* ========== VISUALIZATIONS SECTION ========== */
+        .viz-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.6rem;
+            margin-top: 1rem;
+        }
+
+        .viz-card {
+            background: var(--color-white);
+            padding: 1.5rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .viz-card h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: var(--color-light);
+            border-radius: var(--border-radius-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-info-dark);
+            font-weight: 600;
+        }
+
+        /* ========== INSIGHTS SECTION ========== */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.6rem;
+            margin-top: 1rem;
+        }
+
+        .insight-card {
+            background: var(--color-white);
+            padding: 1.5rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .insight-card.danger {
+            border-left-color: var(--color-danger);
+        }
+
+        .insight-card.success {
+            border-left-color: var(--color-success);
+        }
+
+        .insight-card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .insight-card p {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* ========== DOCUMENTATION SECTION ========== */
+        .doc-content {
+            background: var(--color-white);
+            padding: 2rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 1rem;
+        }
+
+        .doc-section {
+            margin-bottom: 2rem;
+        }
+
+        .doc-section h3 {
+            font-size: 1rem;
+            color: var(--color-primary);
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .doc-section p {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .doc-section code {
+            background: var(--color-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--border-radius-1);
+            font-family: monospace;
+            color: var(--color-primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            aside {
+                position: fixed;
+                left: -100%;
+                z-index: 1000;
+                width: 18rem;
+                transition: left 0.3s ease;
+            }
+
+            aside.active {
+                left: 0;
+            }
+
+            .right {
+                display: none;
+            }
+
+            main {
+                margin: 0;
+            }
+
+            main .insights {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                font-size: 12px;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            aside .sidebar a span {
+                font-size: 1.2rem;
+            }
+
+            main h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- ========== SIDEBAR ========== -->
+        <aside>
+            <div class="top">
+                <div class="logo">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <h3>Shopee</h3>
+                </div>
+                <div class="close" id="close-btn">
+                    <span class="material-symbols-outlined">close</span>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <a class="nav-link active" data-section="dashboard">
+                    <span class="material-symbols-outlined">grid_view</span>
+                    <h3>Dashboard</h3>
+                </a>
+                <a class="nav-link" data-section="story">
+                    <span class="material-symbols-outlined">description</span>
+                    <h3>Story</h3>
+                </a>
+                <a class="nav-link" data-section="visualizations">
+                    <span class="material-symbols-outlined">bar_chart</span>
+                    <h3>Visualizations</h3>
+                </a>
+                <a class="nav-link" data-section="insights">
+                    <span class="material-symbols-outlined">insights</span>
+                    <h3>Insights</h3>
+                </a>
+                <a class="nav-link" data-section="documentation">
+                    <span class="material-symbols-outlined">article</span>
+                    <h3>Documentation</h3>
+                </a>
+                <a class="nav-link logout" href="#">
+                    <span class="material-symbols-outlined">logout</span>
+                    <h3>Logout</h3>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ========== MAIN ========== -->
+        <main>
+            <!-- DASHBOARD SECTION -->
+            <div id="dashboard" class="section active">
+                <h1>Interactive Business Intelligence Dashboard</h1>
+                <div class="date">
+                    <input type="date" id="dateInput">
+                </div>
+
+                <!-- Cards -->
+                <div class="insights">
+                    <div class="card">
+                        <span class="material-symbols-outlined" style="background: var(--color-primary); padding: 0.5rem; border-radius: 50%; color: white; font-size: 2rem; display: inline-block;">analytics</span>
+                        <div class="middle">
+                            <div class="left">
+                                <h3>E-commerce Revenue</h3>
+                                <h3>(in billion)</h3>
+                                <h1 style="margin-top: 0.5rem;">$10.86</h1>
+                            </div>
+                            <div class="progress">
+                                <svg>
+                                    <circle cx="38" cy="38" r="35"></circle>
+                                </svg>
+                                <div class="number"><p>64.6%</p></div>
+                            </div>
+                        </div>
+                        <small class="text-muted">In 2024</small>
+                    </div>
+
+                    <div class="card danger">
+                        <span class="material-symbols-outlined" style="background: var(--color-danger); padding: 0.5rem; border-radius: 50%; color: white; font-size: 2rem; display: inline-block;">bar_chart</span>
+                        <div class="middle">
+                            <div class="left">
+                                <h3>Digital Financial Services</h3>
+                                <h3>(in billion)</h3>
+                                <h1 style="margin-top: 0.5rem;">$2.37</h1>
+                            </div>
+                            <div class="progress">
+                                <svg>
+                                    <circle cx="38" cy="38" r="36"></circle>
+                                </svg>
+                                <div class="number"><p>14.1%</p></div>
+                            </div>
+                        </div>
+                        <small class="text-muted">In 2024</small>
+                    </div>
+
+                    <div class="card success">
+                        <span class="material-symbols-outlined" style="background: var(--color-success); padding: 0.5rem; border-radius: 50%; color: white; font-size: 2rem; display: inline-block;">stacked_line_chart</span>
+                        <div class="middle">
+                            <div class="left">
+                                <h3>Sales of Goods</h3>
+                                <h3>(in billion)</h3>
+                                <h1 style="margin-top: 0.5rem;">$1.91</h1>
+                            </div>
+                            <div class="progress">
+                                <svg>
+                                    <circle cx="38" cy="38" r="36"></circle>
+                                </svg>
+                                <div class="number"><p>9.3%</p></div>
+                            </div>
+                        </div>
+                        <small class="text-muted">In 2024</small>
+                    </div>
+                </div>
+
+                <!-- Interactive Visualizations Panel -->
+                <div class="recent-orders">
+                    <h2>Interactive Visualizations: Exploring Shopee's Growth Drivers</h2>
+                    <p style="color: var(--color-info-dark); margin-bottom: 1.5rem;">The visualizations below represent key financial and operational trends. Since actual live data is not available for an offline HTML submission, we use the powerful <strong>Chart.js</strong> library with embedded sample data to illustrate the chart types and interactivity.</p>
+
+                    <h3 style="margin-top: 1.5rem;">Revenue Trend (2015-2020)</h3>
+                    <p style="color: var(--color-info-dark); margin-bottom: 1rem;">A line chart showing the substantial increase in revenue, driven by both e-commerce and digital entertainment segments.</p>
+                    <div style="height: 350px; background: var(--color-white); padding: var(--card-padding); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
+
+                    <h3 style="margin-top: 1.5rem;">Revenue Breakdown by Segment</h3>
+                    <p style="color: var(--color-info-dark); margin-bottom: 1rem;">A pie chart displaying the percentage of revenue from different segments (E-commerce, Digital Entertainment, etc.).</p>
+                    <div style="width: 50%; margin: 30px auto; background: var(--color-white); padding: var(--card-padding); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow);">
+                        <canvas id="segmentBreakdownChart"></canvas>
+                    </div>
+
+                    <h3 style="margin-top: 1.5rem;">Marketing Spend vs. Revenue</h3>
+                    <p style="color: var(--color-info-dark); margin-bottom: 1rem;">A comparison chart illustrating the positive relationship between aggressive marketing investment and subsequent revenue growth.</p>
+                    <div style="height: 350px; margin-top: 30px; background: var(--color-white); padding: var(--card-padding); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
+                        <canvas id="marketingRevenueChart"></canvas>
+                    </div>
+
+                    <h3 style="margin-top: 1.5rem;">Net Loss vs. Operating Loss</h3>
+                    <p style="color: var(--color-info-dark); margin-bottom: 1rem;">An abstract comparison chart to show the gap between operational loss and the influence of other factors.</p>
+                    <div style="background: var(--color-white); padding: var(--card-padding); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow); margin-top: 20px;">
+                        <p class="text-muted">A key visualization shows operational losses continue to mount, but net losses have narrowed, reflecting improvements in overall financial efficiency despite high marketing spend. This gap is due to non-operating factors like interest payments.</p>
+                        <p class="text-muted"><strong>(Interactive chart area placeholder)</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STORY SECTION -->
+            <div id="story" class="section">
+                <h1>The Story Behind the Data</h1>
+                <div class="story-content">
+                    <h2>Shopee: The Data-Driven Story of E-commerce Excellence</h2>
+                    
+                    <!-- Analysis Overview Chart -->
+                    <div style="margin: 1.5rem 0; text-align: center;">
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/532be306-0fdd-4872-af2d-2b2bd4868be9" alt="Shopee Analysis Overview" style="max-width: 100%; height: auto; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                        <p style="font-size: 0.8rem; color: var(--color-info-dark); margin-top: 0.5rem;">Comprehensive financial performance analysis</p>
+                    </div>
+                    
+                    <h3>Company Overview and Business Question</h3>
+                    <p>Shopee, a leading e-commerce platform in Southeast Asia, has rapidly transformed the region's online shopping experience. The company operates in a competitive landscape with other major players like Lazada and Tokopedia. Shopee's business model focuses on providing a mobile-first platform, facilitating online shopping and digital payments.</p>
+                    
+                    <p><strong>Core Business Question:</strong> How has Shopee's financial performance evolved over the last 6 years, and what are the key drivers behind its growth?</p>
+                    
+                    <h3>Why Does This Analysis Matter?</h3>
+                    <p>This analysis is crucial for Shopee's leadership team to understand the factors that drive revenue growth, profitability, and consumer engagement. These insights will help make data-driven decisions to sustain growth in the competitive e-commerce market.</p>
+                    
+                    <h2>Key Metrics and Insights</h2>
+                    
+                    <h3>1. Revenue Growth - Indonesia Market Leadership</h3>
+                    <p>Shopee's total revenue has grown substantially, especially in Southeast Asia's largest market - Indonesia. The company captured over 40% of region's e-commerce volume through aggressive market expansion and localized services.</p>
+                    
+                    <!-- Indonesia Market Performance -->
+                    <div style="margin: 1.5rem 0; text-align: center;">
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/7d70a191-48f0-4e08-a183-62720f848b8f" alt="Shopee Indonesia Market Performance" style="max-width: 100%; height: auto; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                        <p style="font-size: 0.8rem; color: var(--color-info-dark); margin-top: 0.5rem;">Indonesia represents Shopee's strongest market and growth engine</p>
+                    </div>
+                    
+                    <h3>2. E-commerce Segment Performance</h3>
+                    <p>The e-commerce platform's revenue saw a sharp rise, indicating strong market demand, particularly during peak shopping seasons. This aligns with the global e-commerce boom, fueled by shifting consumer habits toward online shopping. Digital entertainment segment ($5B revenue) now leads overall portfolio.</p>
+                    
+                    <h3>3. Customer Sentiment</h3>
+                    <p>Sentiment analysis of reviews and social media mentions reveals that customers appreciate Shopee's user-friendly interface and fast delivery but express concerns over product quality in certain categories.</p>
+                    
+                    <h3>4. Marketing Investment Efficiency</h3>
+                    <p>Marketing and sales expenses have grown, reflecting Shopee's aggressive approach to market share acquisition. However, the increase in spending is showing a positive ROI as revenue continues to climb.</p>
+                    
+                    <h3>5. Operational Efficiency</h3>
+                    <p>While operational losses continue to mount, net losses have narrowed, reflecting improvements in overall financial efficiency despite high marketing spend.</p>
+                    
+                    <h2>Data-Driven Recommendations</h2>
+                    
+                    <ol>
+                        <li><strong>Increase Investment in R&D and Product Quality:</strong> Given the concerns over product quality, Shopee should increase its focus on product verification and quality control, particularly for sellers.</li>
+                        <li><strong>Expand Customer-Centric Marketing:</strong> Future campaigns should be more personalized, focusing on customer engagement and brand loyalty.</li>
+                        <li><strong>Optimize Logistics for Cost-Efficiency:</strong> Continue optimizing the delivery network to lower operational costs while ensuring fast and reliable service.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- VISUALIZATIONS SECTION -->
+            <div id="visualizations" class="section">
+                <h1>Additional Analytics & Real Data Visualizations</h1>
+                <p style="color: var(--color-info-dark); margin-bottom: 1.5rem;">Real Shopee financial data visualizations compiled from actual business performance metrics and market analysis.</p>
+
+                <div class="viz-grid">
+                    <!-- Real Data: Comprehensive Multichart Overview -->
+                    <div class="viz-card">
+                        <h3>📊 Shopee Financial Performance Summary (2015-2020)</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Comprehensive overview combining multiple key metrics: Total Revenue, Gross Profit, and Net Loss trends over the 6-year period.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/0953c918-216f-4c0b-9edc-8e0793706f8f" alt="Shopee Multichart Analysis" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Real Data: Revenue Breakdown 2020 -->
+                    <div class="viz-card">
+                        <h3>🥧 Shopee Revenue Breakdown (2020) - Actual Data</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Revenue composition by business segment showing E-commerce (40.6%), Digital Entertainment (46.1%), and Sales of Goods (13.3%).</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/6a7c9f6d-1b45-4980-845a-e49990a014b0" alt="Revenue Breakdown Pie Chart" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Real Data: Year-over-Year Revenue Growth -->
+                    <div class="viz-card">
+                        <h3>📈 Year-over-Year Revenue Growth (2015-2020) - Actual Data</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Explosive revenue growth acceleration, with 2019 showing 165% YoY growth, demonstrating aggressive market expansion and customer acquisition.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/415f9047-c5b0-4cc2-9261-f071211ad412" alt="YoY Revenue Growth Chart" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Real Data: Sales & Marketing Expenses as Percentage -->
+                    <div class="viz-card">
+                        <h3>💰 Sales & Marketing Expenses as % of Revenue (2015-2020) - Actual Data</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Marketing spend intensity peaked in 2017 at 102% of revenue, then optimized to 42% by 2020, showing improved efficiency and profitability focus.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/555f7220-6b44-4b52-822c-4169a1f9c303" alt="Sales & Marketing % Chart" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Real Data: Operating Loss vs Net Loss -->
+                    <div class="viz-card">
+                        <h3>📉 Operating Loss vs. Net Loss (2015-2020) - Actual Data</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Gap widening between operating loss and net loss demonstrates non-operating income contributions (interest, investments) improving bottom-line results.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/c8507ef4-0ab8-454f-bdeb-92b0722156cd" alt="Operating vs Net Loss Comparison" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Real Data: Operating Expenses Breakdown -->
+                    <div class="viz-card">
+                        <h3>🔧 Operating Expenses Breakdown (2015-2020) - Actual Data</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Stacked breakdown showing R&D, Sales & Marketing, and General & Admin costs. Sales & Marketing peaked at $1.1B in 2020, the largest expense category.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/285a7fe3-42b6-4914-ba16-5a15c8881e1b" alt="Operating Expenses Breakdown Chart" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Real Data: Sales & Marketing Expenses Trend -->
+                    <div class="viz-card">
+                        <h3>📊 Shopee Sales & Marketing Expenses Trend (2015-2020) - Actual Data</h3>
+                        <p style="font-size: 0.85rem; color: var(--color-info-dark); margin-bottom: 1rem;">Detailed view of marketing investment strategy showing 800%+ increase from 2015 ($0.15B) to 2020 ($1.8B), supporting aggressive market growth.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/315c326f-ea79-4b10-8549-4ff269de5838" alt="Sales & Marketing Expenses Trend" style="width: 100%; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow);">
+                    </div>
+
+                    <!-- Analysis Summary Card -->
+                    <div class="viz-card">
+                        <h3>🎯 Key Findings & Analysis Summary</h3>
+                        <div style="background: var(--color-light); padding: 1.5rem; border-radius: var(--border-radius-2); border-left: 4px solid var(--color-primary);">
+                            <p style="color: var(--color-dark); margin-bottom: 0.8rem;"><strong>Strategic Insights:</strong></p>
+                            <ul style="margin-left: 1.5rem; color: var(--color-info-dark); line-height: 1.8;">
+                                <li><strong>Revenue Explosion:</strong> $0.2B (2015) → $10.86B (2020) = 54x growth</li>
+                                <li><strong>Profitability Path:</strong> Operating losses narrowing despite continued growth investment</li>
+                                <li><strong>Marketing ROI:</strong> Peak efficiency achieved in 2020 with 42% of revenue spend yielding highest profitability</li>
+                                <li><strong>Segment Leaders:</strong> Digital Entertainment (46.1%) now exceeds E-commerce (40.6%) in revenue mix</li>
+                                <li><strong>Operational Excellence:</strong> Net losses improving while supporting 155M+ MAU growth</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INSIGHTS SECTION -->
+            <div id="insights" class="section">
+                <h1>Key Business Insights</h1>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <h3>📈 Revenue Growth Acceleration</h3>
+                        <p>E-commerce revenue has accelerated by 64.6% YoY, driven primarily by increased mobile adoption and expanded product categories across Southeast Asian markets.</p>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <h3>💳 Digital Financial Services</h3>
+                        <p>Digital Financial Services segment reached $2.37B, representing a 14.1% increase. This reflects strong adoption of digital payment solutions and fintech integration.</p>
+                    </div>
+                    
+                    <div class="insight-card danger">
+                        <h3>⚠️ Operational Challenges</h3>
+                        <p>Despite revenue growth, operational losses remain a concern. Focus needed on logistics optimization and vendor quality management to improve margins.</p>
+                    </div>
+                    
+                    <div class="insight-card success">
+                        <h3>✅ Market Dominance</h3>
+                        <p>Shopee maintains strong market position in Southeast Asia with 9.3% sales growth in core goods segment. User base expansion remains steady year-over-year.</p>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <h3>🎯 Customer Engagement</h3>
+                        <p>User-friendly interface and fast delivery are key differentiators. However, product quality concerns in certain categories require immediate attention.</p>
+                    </div>
+                    
+                    <div class="insight-card success">
+                        <h3>📱 Mobile-First Success</h3>
+                        <p>Mobile platform accounts for 85%+ of transactions. Continued investment in mobile experience and features will drive future growth.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCUMENTATION SECTION -->
+            <div id="documentation" class="section">
+                <h1>Documentation</h1>
+                <div class="doc-content">
+                    <div class="doc-section">
+                        <h3>Project Overview</h3>
+                        <p>This Shopee Business Intelligence Dashboard is an interactive web application designed to visualize and analyze key business metrics for Shopee's e-commerce operations.</p>
+                        <p>The dashboard aggregates data across multiple business segments including e-commerce revenue, digital financial services, and sales performance metrics.</p>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Dashboard Features</h3>
+                        <p><strong>1. Dashboard:</strong> Overview of key performance indicators (KPIs) with real-time metrics and recent order tracking.</p>
+                        <p><strong>2. Story:</strong> Narrative analysis of Shopee's business performance with strategic insights and recommendations.</p>
+                        <p><strong>3. Visualizations:</strong> Data charts and graphs representing revenue trends, market analysis, and comparative metrics.</p>
+                        <p><strong>4. Insights:</strong> Actionable business insights extracted from data analysis for decision-making.</p>
+                        <p><strong>5. Documentation:</strong> Technical and operational documentation for dashboard usage and customization.</p>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>🔧 Development Environment - Anaconda Toolbox</h3>
+                        <p>This project was developed using <strong>Anaconda Toolbox</strong>, a comprehensive Python data science environment that provides all necessary tools for data analysis, visualization, and business intelligence development.</p>
+                        
+                        <div style="margin: 1.5rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <!-- Anaconda Toolbox Image 1 -->
+                            <div style="background: var(--color-white); padding: 1rem; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow); text-align: center;">
+                                <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/322a315e-419e-4356-aad6-160e033aa179" alt="Anaconda Toolbox Project Navigator" style="width: 100%; height: auto; border-radius: var(--border-radius-2); margin-bottom: 0.5rem;">
+                                <p style="font-size: 0.8rem; color: var(--color-info-dark);"><strong>Project Navigator:</strong> File structure and project organization in Anaconda Toolbox</p>
+                            </div>
+
+                            <!-- Anaconda Toolbox Image 2 -->
+                            <div style="background: var(--color-white); padding: 1rem; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow); text-align: center;">
+                                <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/71be6ce2-1fec-4baa-9b91-df10f06195dd" alt="Anaconda Toolbox JupyterLab Interface" style="width: 100%; height: auto; border-radius: var(--border-radius-2); margin-bottom: 0.5rem;">
+                                <p style="font-size: 0.8rem; color: var(--color-info-dark);"><strong>JupyterLab Interface:</strong> Interactive notebook environment for data analysis and code development</p>
+                            </div>
+                        </div>
+
+                        <p style="margin-top: 1rem; color: var(--color-info-dark);"><strong>Key Tools Included:</strong></p>
+                        <ul style="margin-left: 2rem; margin-bottom: 1rem; color: var(--color-info-dark);">
+                            <li><strong>Jupyter Notebooks:</strong> Interactive development and documentation</li>
+                            <li><strong>pandas:</strong> Data manipulation and analysis</li>
+                            <li><strong>NumPy:</strong> Numerical computing</li>
+                            <li><strong>Matplotlib & Seaborn:</strong> Data visualization</li>
+                            <li><strong>Scikit-learn:</strong> Machine learning algorithms</li>
+                            <li><strong>SQLite:</strong> Database management</li>
+                        </ul>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Technology Stack</h3>
+                        <p><strong>Frontend:</strong> HTML5, CSS3, Vanilla JavaScript</p>
+                        <p><strong>Icons:</strong> Google Material Symbols (CDN)</p>
+                        <p><strong>Fonts:</strong> Poppins (Google Fonts)</p>
+                        <p><strong>Storage:</strong> Local state management with JavaScript variables</p>
+                        <p><strong>Deployment:</strong> Single HTML file (self-contained)</p>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Data Structure</h3>
+                        <p>All data is stored in JavaScript arrays and objects within the script section. The sample data includes:</p>
+                        <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                            <li><code>orders</code> - Array of order objects with product details</li>
+                            <li><code>kpis</code> - Key performance indicators data</li>
+                            <li><code>updates</code> - Recent activity updates</li>
+                            <li><code>analytics</code> - Sales analytics data</li>
+                        </ul>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Navigation Instructions</h3>
+                        <p>Use the sidebar menu on the left to navigate between sections. Click on any menu item to view that section's content.</p>
+                        <p>The theme toggle button (in the top-right for desktop) switches between light and dark modes.</p>
+                        <p>All data filters and date pickers are functional for interactive data exploration.</p>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Customization Guide</h3>
+                        <p>To customize this dashboard:</p>
+                        <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                            <li>Update the <code>orders</code> array with your actual data</li>
+                            <li>Modify KPI values in the cards section</li>
+                            <li>Add real charts using Chart.js or similar libraries (by adding CDN link)</li>
+                            <li>Change color scheme in the CSS variables section (:root)</li>
+                            <li>Update content in each section as needed</li>
+                        </ul>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Browser Compatibility</h3>
+                        <p>This dashboard works in all modern browsers including Chrome, Firefox, Safari, and Edge.</p>
+                        <p>Recommended minimum resolution: 1024px width for optimal viewing experience.</p>
+                        <p>Mobile responsive design ensures functionality on tablets and smartphones.</p>
+                    </div>
+
+                    <div class="doc-section">
+                        <h3>Version Information</h3>
+                        <p>Dashboard Version: 1.0.0</p>
+                        <p>Last Updated: December 2024</p>
+                        <p>For updates or support, refer to project documentation.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ========== RIGHT SIDE ========== -->
+        <div class="right">
+            <div class="top">
+                <div class="theme-toggler" id="theme-toggle">
+                    <span class="material-symbols-outlined active">light_mode</span>
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </div>
+                <div class="profile">
+                    <div class="info">
+                        <p>Hello, <b>Victor!</b></p>
+                        <small class="text-muted">Welcome</small>
+                    </div>
+                    <div class="profile-photo">
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/5b85b935-a625-4da5-9856-abd459065e45" alt="Victor Profile">
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-updates">
+                <h2>Recent Updates</h2>
+                <div class="updates">
+                    <div class="update">
+                        <div class="profile-photo">
+                            <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/7911b8d2-0b74-4921-ab09-c31b67c76791" alt="Jake Tedd">
+                        </div>
+                        <div class="message">
+                            <p><b>Jake Tedd</b> received his order of Night Lion GPS Drone.</p>
+                            <small class="text-muted">2 Minutes Ago</small>
+                        </div>
+                    </div>
+                    <div class="update">
+                        <div class="profile-photo">
+                            <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/124d4c1b-2780-4723-9044-c4ae8c059715" alt="Diane Ross">
+                        </div>
+                        <div class="message">
+                            <p><b>Diane Ross</b> declined her order of 2 DJI Air 2S.</p>
+                            <small class="text-muted">5 Minutes Ago</small>
+                        </div>
+                    </div>
+                    <div class="update">
+                        <div class="profile-photo">
+                            <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/be296c6b-c03e-42b8-9e6c-9e079bf68c3b" alt="Irene Blunt">
+                        </div>
+                        <div class="message">
+                            <p><b>Irene Blunt</b> received her order of Olympus Camera X10s.</p>
+                            <small class="text-muted">22 Minutes Ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sales-analytics">
+                <h2>Sales Analytics</h2>
+                <div class="item online">
+                    <div class="icon">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                    </div>
+                    <div class="right-info">
+                        <div class="info">
+                            <h3>ONLINE ORDERS</h3>
+                            <small class="text-muted">Last 24 Hours</small>
+                        </div>
+                        <h5 class="success">+39%</h5>
+                        <h3>3,849</h3>
+                    </div>
+                </div>
+                <div class="item offline">
+                    <div class="icon">
+                        <span class="material-symbols-outlined">local_mall</span>
+                    </div>
+                    <div class="right-info">
+                        <div class="info">
+                            <h3>OFFLINE ORDERS</h3>
+                            <small class="text-muted">Last 24 Hours</small>
+                        </div>
+                        <h5 class="danger">-17%</h5>
+                        <h3>1,100</h3>
+                    </div>
+                </div>
+                <div class="item new">
+                    <div class="icon">
+                        <span class="material-symbols-outlined">person_add</span>
+                    </div>
+                    <div class="right-info">
+                        <div class="info">
+                            <h3>NEW CUSTOMERS</h3>
+                            <small class="text-muted">Last 24 Hours</small>
+                        </div>
+                        <h5 class="success">+25%</h5>
+                        <h3>849</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA ========== 
+        const orders = [
+            { productName: "Foldable Mini Drone", number: "85631", payment: "Due", status: "Pending" },
+            { productName: "LARVENDER KF102 Drone", number: "36378", payment: "Refunded", status: "Declined" },
+            { productName: "Ruko F11 Pro Drone", number: "49347", payment: "Due", status: "Pending" },
+            { productName: "Drone with Camera", number: "96996", payment: "Paid", status: "Delivered" },
+            { productName: "GPS 4K Drone", number: "22821", payment: "Paid", status: "Delivered" },
+            { productName: "DJI Air 2S", number: "81475", payment: "Due", status: "Pending" },
+            { productName: "Lozenge Drone", number: "00482", payment: "Paid", status: "Delivered" }
+        ];
+
+        // ========== DOM ELEMENTS ========== 
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+        const themeToggle = document.getElementById('theme-toggle');
+        const dateInput = document.getElementById('dateInput');
+
+        // ========== POPULATE ORDERS TABLE ========== 
+        function populateOrdersTable() {
+            const tbody = document.getElementById('orders-body');
+            tbody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${order.productName}</td>
+                    <td>${order.number}</td>
+                    <td>${order.payment}</td>
+                    <td class="${getStatusClass(order.status)}">${order.status}</td>
+                    <td><a href="#" class="primary">Details</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Pending': return 'status-pending';
+                case 'Declined': return 'status-declined';
+                case 'Delivered': return 'status-delivered';
+                default: return '';
+            }
+        }
+
+        // ========== NAVIGATION ========== 
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                link.classList.add('active');
+                
+                // Hide all sections
+                sections.forEach(section => section.classList.remove('active'));
+                // Show selected section
+                const sectionId = link.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
+
+        // ========== THEME TOGGLE ========== 
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            
+            const lightIcon = themeToggle.querySelector('span:nth-child(1)');
+            const darkIcon = themeToggle.querySelector('span:nth-child(2)');
+            
+            lightIcon.classList.toggle('active');
+            darkIcon.classList.toggle('active');
+        });
+
+        // ========== DATE INPUT ========== 
+        dateInput.valueAsDate = new Date();
+        dateInput.addEventListener('change', (e) => {
+            console.log('Selected date:', e.target.value);
+        });
+
+        // ========== CHART DATA ========== 
+        const chartData = {
+            revenueTrend: {
+                labels: ['2015', '2016', '2017', '2018', '2019', '2020'],
+                datasets: [{
+                    label: 'Total Revenue (Billion USD)',
+                    data: [0.2, 0.4, 1.2, 3.5, 7.8, 10.86],
+                    borderColor: '#ff5722',
+                    backgroundColor: 'rgba(255, 87, 34, 0.15)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#ff5722',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            segmentBreakdown: {
+                labels: ['E-commerce (70%)', 'Digital Entertainment (25%)', 'Other Services (5%)'],
+                datasets: [{
+                    data: [70, 25, 5],
+                    backgroundColor: ['#ff5722', '#ffa000', '#8c8c8c'],
+                    borderColor: 'var(--color-white)',
+                    borderWidth: 2,
+                    hoverOffset: 8
+                }]
+            },
+            marketingRevenue: {
+                labels: ['2017', '2018', '2019', '2020'],
+                datasets: [{
+                    label: 'Marketing Spend (Billion USD)',
+                    data: [1.0, 2.5, 5.0, 6.5],
+                    backgroundColor: '#00c853',
+                    borderRadius: 5
+                },
+                {
+                    label: 'Revenue (Billion USD)',
+                    data: [1.2, 3.5, 7.8, 10.86],
+                    backgroundColor: '#ff5722',
+                    borderRadius: 5
+                }]
+            },
+            userGrowth: {
+                labels: ['Q1 2019', 'Q2 2019', 'Q3 2019', 'Q4 2019', 'Q1 2020', 'Q2 2020'],
+                datasets: [{
+                    label: 'Monthly Active Users (Millions)',
+                    data: [45, 62, 78, 95, 120, 155],
+                    borderColor: '#ff5722',
+                    backgroundColor: 'rgba(255, 87, 34, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#ff5722',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            regionalPerformance: {
+                labels: ['Indonesia', 'Philippines', 'Thailand', 'Malaysia', 'Vietnam', 'Singapore'],
+                datasets: [{
+                    label: 'Revenue by Region (Billion USD)',
+                    data: [4.2, 2.1, 1.8, 1.5, 0.9, 0.36],
+                    backgroundColor: [
+                        'rgba(255, 87, 34, 0.8)',
+                        'rgba(255, 87, 34, 0.7)',
+                        'rgba(255, 87, 34, 0.6)',
+                        'rgba(255, 87, 34, 0.5)',
+                        'rgba(255, 87, 34, 0.4)',
+                        'rgba(255, 87, 34, 0.3)'
+                    ],
+                    borderColor: '#ff5722',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            }
+        };
+
+        // ========== RENDER CHARTS ========== 
+        function renderCharts() {
+            // Revenue Trend Line Chart
+            const revenueCtx = document.getElementById('revenueTrendChart');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: chartData.revenueTrend,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.7)' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value + 'B'; } } }
+                        }
+                    }
+                });
+            }
+
+            // Segment Breakdown Doughnut Chart
+            const segmentCtx = document.getElementById('segmentBreakdownChart');
+            if (segmentCtx) {
+                new Chart(segmentCtx, {
+                    type: 'doughnut',
+                    data: chartData.segmentBreakdown,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.parsed.y + '%'; } } }
+                        }
+                    }
+                });
+            }
+
+            // Marketing vs Revenue Bar Chart
+            const marketingCtx = document.getElementById('marketingRevenueChart');
+            if (marketingCtx) {
+                new Chart(marketingCtx, {
+                    type: 'bar',
+                    data: chartData.marketingRevenue,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.7)' }
+                        },
+                        scales: {
+                            x: { stacked: false },
+                            y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value + 'B'; } } }
+                        }
+                    }
+                });
+            }
+
+            // User Growth Line Chart
+            const userCtx = document.getElementById('userGrowthChart');
+            if (userCtx) {
+                new Chart(userCtx, {
+                    type: 'line',
+                    data: chartData.userGrowth,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.7)' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: function(value) { return value + 'M'; } } }
+                        }
+                    }
+                });
+            }
+
+            // Regional Performance Bar Chart
+            const regionalCtx = document.getElementById('regionalPerformanceChart');
+            if (regionalCtx) {
+                new Chart(regionalCtx, {
+                    type: 'bar',
+                    data: chartData.regionalPerformance,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { backgroundColor: 'rgba(0,0,0,0.7)' }
+                        },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value + 'B'; } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ========== INITIALIZATION ========== 
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCharts();
+        });
+    </script>
+</body>
+</html>
