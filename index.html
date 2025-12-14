@@ -113,8 +113,16 @@
             color: var(--color-primary);
         }
 
+        aside .logo h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+
         aside .close {
             display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
         }
 
         aside .sidebar {
@@ -417,6 +425,7 @@
         .profile-photo img {
             width: 100%;
             height: 100%;
+            object-fit: cover;
         }
 
         .recent-updates, .sales-analytics {
@@ -451,6 +460,7 @@
         .update .profile-photo {
             width: 40px;
             height: 40px;
+            flex-shrink: 0;
         }
 
         .update p {
@@ -479,6 +489,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.8rem;
+            flex-shrink: 0;
         }
 
         .sales-analytics .item.online .icon {
@@ -636,6 +647,35 @@
             line-height: 1.5;
         }
 
+        .insight-image-card {
+            background: var(--color-white);
+            padding: 1.5rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--box-shadow);
+            grid-column: 1 / -1;
+        }
+
+        .insight-image-card h3 {
+            font-size: 1rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .insight-image-card p {
+            font-size: 0.85rem;
+            color: var(--color-info-dark);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .insight-image-card img {
+            width: 100%;
+            border-radius: var(--border-radius-2);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1.5rem;
+        }
+
         /* ========== DOCUMENTATION SECTION ========== */
         .doc-content {
             background: var(--color-white);
@@ -661,12 +701,61 @@
             line-height: 1.6;
         }
 
+        .doc-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .doc-section li {
+            margin-bottom: 0.5rem;
+            color: var(--color-info-dark);
+        }
+
         .doc-section code {
             background: var(--color-light);
             padding: 0.2rem 0.5rem;
             border-radius: var(--border-radius-1);
             font-family: monospace;
             color: var(--color-primary);
+        }
+
+        /* Table Styling */
+        .doc-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--color-white);
+            border: 1px solid var(--color-info-light);
+            border-radius: var(--border-radius-2);
+            overflow: hidden;
+        }
+
+        .doc-section table th, .doc-section table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-info-light);
+        }
+
+        .doc-section table th {
+            background: var(--color-light);
+            color: var(--color-dark);
+            font-weight: 600;
+        }
+
+        .doc-section table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight-box {
+            background: var(--color-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-2);
+            border-left: 4px solid var(--color-primary);
+            margin: 1rem 0;
+        }
+
+        .highlight-box strong {
+            color: var(--color-dark);
         }
 
         /* Responsive Design */
@@ -682,10 +771,16 @@
                 z-index: 1000;
                 width: 18rem;
                 transition: left 0.3s ease;
+                height: 100vh;
             }
 
             aside.active {
                 left: 0;
+            }
+
+            aside .close {
+                display: flex !important;
+                cursor: pointer;
             }
 
             .right {
@@ -694,6 +789,7 @@
 
             main {
                 margin: 0;
+                padding-left: 1rem;
             }
 
             main .insights {
@@ -702,6 +798,10 @@
 
             .insights-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .insight-image-card {
+                grid-column: 1;
             }
         }
 
@@ -720,6 +820,14 @@
 
             main h1 {
                 font-size: 1.4rem;
+            }
+
+            .doc-section table {
+                font-size: 0.8rem;
+            }
+
+            .doc-section table th, .doc-section table td {
+                padding: 0.5rem;
             }
         }
     </style>
@@ -836,7 +944,6 @@
                 <!-- Interactive Visualizations Panel -->
                 <div class="recent-orders">
                     <h2>Interactive Visualizations: Exploring Shopee's Growth Drivers</h2>
-                    <p style="color: var(--color-info-dark); margin-bottom: 1.5rem;">The visualizations below represent key financial and operational trends. Since actual live data is not available for an offline HTML submission, we use the powerful <strong>Chart.js</strong> library with embedded sample data to illustrate the chart types and interactivity.</p>
 
                     <h3 style="margin-top: 1.5rem;">Revenue Trend (2015-2020)</h3>
                     <p style="color: var(--color-info-dark); margin-bottom: 1rem;">A line chart showing the substantial increase in revenue, driven by both e-commerce and digital entertainment segments.</p>
@@ -854,13 +961,6 @@
                     <p style="color: var(--color-info-dark); margin-bottom: 1rem;">A comparison chart illustrating the positive relationship between aggressive marketing investment and subsequent revenue growth.</p>
                     <div style="height: 350px; margin-top: 30px; background: var(--color-white); padding: var(--card-padding); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow); margin-bottom: 2rem;">
                         <canvas id="marketingRevenueChart"></canvas>
-                    </div>
-
-                    <h3 style="margin-top: 1.5rem;">Net Loss vs. Operating Loss</h3>
-                    <p style="color: var(--color-info-dark); margin-bottom: 1rem;">An abstract comparison chart to show the gap between operational loss and the influence of other factors.</p>
-                    <div style="background: var(--color-white); padding: var(--card-padding); border-radius: var(--card-border-radius); box-shadow: var(--box-shadow); margin-top: 20px;">
-                        <p class="text-muted">A key visualization shows operational losses continue to mount, but net losses have narrowed, reflecting improvements in overall financial efficiency despite high marketing spend. This gap is due to non-operating factors like interest payments.</p>
-                        <p class="text-muted"><strong>(Interactive chart area placeholder)</strong></p>
                     </div>
                 </div>
             </div>
@@ -993,6 +1093,7 @@
             <!-- INSIGHTS SECTION -->
             <div id="insights" class="section">
                 <h1>Key Business Insights</h1>
+                
                 <div class="insights-grid">
                     <div class="insight-card">
                         <h3>📈 Revenue Growth Acceleration</h3>
@@ -1023,6 +1124,22 @@
                         <h3>📱 Mobile-First Success</h3>
                         <p>Mobile platform accounts for 85%+ of transactions. Continued investment in mobile experience and features will drive future growth.</p>
                     </div>
+
+                    <!-- Digital Trade Integration Insight -->
+                    <div class="insight-image-card">
+                        <h3>🌍 Digital Trade Integration & Openness Index (INDIGO) - Multi-Country Analysis</h3>
+                        <p><strong>OECD INDIGO Analysis (2000-2024):</strong> This comprehensive visualization tracks digital trade integration and openness across 16 countries and regions in Asia-Pacific and beyond. The index measures countries' openness to digital trade, regulatory frameworks, and e-commerce infrastructure development.</p>
+                        <p><strong>Key Findings:</strong> The analysis shows significant variation in digital trade integration among countries. Australia leads with sustained high openness levels since 2000, while countries like Myanmar and Timor-Leste are emerging in digital trade participation. Southeast Asian countries show increasing integration trends, demonstrating the region's growing importance in global digital commerce networks.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/91ef4e73-8704-4597-b178-04d945619d9b" alt="INDIGO Digital Trade Integration Index" style="border-radius: var(--border-radius-2); box-shadow: var(--box-shadow); margin-top: 1rem;">
+                    </div>
+
+                    <!-- Digital Readiness by Country -->
+                    <div class="insight-image-card">
+                        <h3>💻 Digital Readiness & E-commerce Adoption Index - 2023 Global Ranking</h3>
+                        <p><strong>Africa's Development Dynamics (AfDD) - Digitalisation Metrics:</strong> This bar chart illustrates digital readiness scores across 10 countries, with Philippines leading at 75+ points, followed by Singapore at 65+ points. The metrics measure digital infrastructure, e-commerce adoption, regulatory frameworks, and digital skills development.</p>
+                        <p><strong>Strategic Implications for Shopee:</strong> The regional variation highlights different market opportunities for e-commerce expansion. High-scoring countries like Philippines and Singapore represent mature e-commerce markets, while emerging economies offer growth potential. Countries with lower scores present both challenges and opportunities for digital infrastructure development and market penetration strategies.</p>
+                        <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/77710" alt="Digital Readiness E-commerce Adoption Index" style="border-radius: var(--border-radius-2); box-shadow: var(--box-shadow); margin-top: 1rem;">
+                    </div>
                 </div>
             </div>
 
@@ -1038,40 +1155,62 @@
 
                     <div class="doc-section">
                         <h3>Dashboard Features</h3>
-                        <p><strong>1. Dashboard:</strong> Overview of key performance indicators (KPIs) with real-time metrics.</p>
+                        <p><strong>1. Dashboard:</strong> Overview of key performance indicators (KPIs) with real-time metrics and recent order tracking.</p>
                         <p><strong>2. Story:</strong> Narrative analysis of Shopee's business performance with strategic insights and recommendations.</p>
                         <p><strong>3. Visualizations:</strong> Data charts and graphs representing revenue trends, market analysis, and comparative metrics.</p>
-                        <p><strong>4. Insights:</strong> Actionable business insights extracted from data analysis for decision-making.</p>
+                        <p><strong>4. Insights:</strong> Actionable business insights extracted from data analysis for decision-making, including regional digital trade integration metrics.</p>
                         <p><strong>5. Documentation:</strong> Technical and operational documentation for dashboard usage and customization.</p>
-                    </div>
 
-                    <div class="doc-section">
-                        <h3>🔧 Development Environment - Anaconda Toolbox</h3>
-                        <p>This project was developed using <strong>Anaconda Toolbox</strong>, a comprehensive Python data science environment that provides all necessary tools for data analysis, visualization, and business intelligence development.</p>
+                        <h3 style="margin-top: 2rem;">AI Tools Integration and Development Approach</h3>
                         
-                        <div style="margin: 1.5rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                            <!-- Anaconda Toolbox Image 1 -->
-                            <div style="background: var(--color-white); padding: 1rem; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow); text-align: center;">
-                                <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/322a315e-419e-4356-aad6-160e033aa179" alt="Anaconda Toolbox Project Navigator" style="width: 100%; height: auto; border-radius: var(--border-radius-2); margin-bottom: 0.5rem;">
-                                <p style="font-size: 0.8rem; color: var(--color-info-dark);"><strong>Project Navigator:</strong> File structure and project organization in Anaconda Toolbox</p>
-                            </div>
-
-                            <!-- Anaconda Toolbox Image 2 -->
-                            <div style="background: var(--color-white); padding: 1rem; border-radius: var(--border-radius-2); box-shadow: var(--box-shadow); text-align: center;">
-                                <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/71be6ce2-1fec-4baa-9b91-df10f06195dd" alt="Anaconda Toolbox JupyterLab Interface" style="width: 100%; height: auto; border-radius: var(--border-radius-2); margin-bottom: 0.5rem;">
-                                <p style="font-size: 0.8rem; color: var(--color-info-dark);"><strong>JupyterLab Interface:</strong> Interactive notebook environment for data analysis and code development</p>
-                            </div>
-                        </div>
-
-                        <p style="margin-top: 1rem; color: var(--color-info-dark);"><strong>Key Tools Included:</strong></p>
-                        <ul style="margin-left: 2rem; margin-bottom: 1rem; color: var(--color-info-dark);">
-                            <li><strong>Jupyter Notebooks:</strong> Interactive development and documentation</li>
-                            <li><strong>pandas:</strong> Data manipulation and analysis</li>
-                            <li><strong>NumPy:</strong> Numerical computing</li>
-                            <li><strong>Matplotlib & Seaborn:</strong> Data visualization</li>
-                            <li><strong>Scikit-learn:</strong> Machine learning algorithms</li>
-                            <li><strong>SQLite:</strong> Database management</li>
+                        <p><strong>AI Tools Used in My Workflow</strong></p>
+                        <p>I utilized five AI tools throughout this project: <strong>ChatGPT, Perplexity, Gemini, Microsoft Copilot, and Claude</strong>. Each served specific purposes:</p>
+                        <ul>
+                            <li><strong>Perplexity</strong> - Research and source aggregation with citations</li>
+                            <li><strong>ChatGPT</strong> - Coding (HTML, CSS, JavaScript) and content refinement</li>
+                            <li><strong>Claude</strong> - Context understanding and nuanced problem-solving</li>
+                            <li><strong>Gemini</strong> - Data analysis and visualization concepts</li>
+                            <li><strong>Copilot</strong> - Quick code snippets and debugging assistance</li>
                         </ul>
+                        <p>I maintained a supervisory role by evaluating each output, checking accuracy, and verifying correlation with expected results.</p>
+
+                        <p style="margin-top: 1rem;"><strong>Key Learning About Prompting</strong></p>
+                        <ul>
+                            <li><strong>Specificity matters</strong> - Vague prompts yielded generic results; detailed requirements improved quality significantly</li>
+                            <li><strong>Tool selection is strategic</strong> - Different AI tools have distinct strengths; choosing the right tool enhanced outcomes</li>
+                            <li><strong>Iteration improves results</strong> - Refining prompts and adjusting feedback cycles produced better solutions</li>
+                        </ul>
+
+                        <p style="margin-top: 1rem;"><strong>Challenges and Solutions</strong></p>
+                        <table>
+                            <tr>
+                                <th>Challenge</th>
+                                <th>Solution</th>
+                            </tr>
+                            <tr>
+                                <td>Inconsistent styling</td>
+                                <td>Tested locally, debugged independently, refined CSS</td>
+                            </tr>
+                            <tr>
+                                <td>Mobile responsiveness failed</td>
+                                <td>Learned responsive design principles, tweaked media queries</td>
+                            </tr>
+                            <tr>
+                                <td>Content lacked academic rigor</td>
+                                <td>Used human judgment to validate and enhance AI-generated text</td>
+                            </tr>
+                            <tr>
+                                <td>Initial code errors</td>
+                                <td>Rapidly adapted, identified root causes, modified systematically</td>
+                            </tr>
+                        </table>
+
+                        <p style="margin-top: 1rem;"><strong>AI vs. Human Learning Balance</strong></p>
+                        <div class="highlight-box">
+                            <p><strong>AI handled:</strong> Research, coding templates, initial drafts, problem suggestions</p>
+                            <p style="margin-top: 0.5rem;"><strong>I handled:</strong> Critical evaluation, debugging complex issues, ensuring accuracy, maintaining academic standards, making final decisions</p>
+                            <p style="margin-top: 0.5rem;"><strong>Key insight:</strong> AI is a powerful productivity tool, not a replacement for understanding. My role was supervising AI output and learning independently when needed.</p>
+                        </div>
                     </div>
 
                     <div class="doc-section">
@@ -1079,38 +1218,16 @@
                         <p><strong>Frontend:</strong> HTML5, CSS3, Vanilla JavaScript</p>
                         <p><strong>Icons:</strong> Google Material Symbols (CDN)</p>
                         <p><strong>Fonts:</strong> Poppins (Google Fonts)</p>
+                        <p><strong>Charts:</strong> Chart.js Library</p>
                         <p><strong>Storage:</strong> Local state management with JavaScript variables</p>
-                        <p><strong>Deployment:</strong> Single HTML file (self-contained)</p>
-                    </div>
-
-                    <div class="doc-section">
-                        <h3>Data Structure</h3>
-                        <p>All data is stored in JavaScript arrays and objects within the script section. The sample data includes:</p>
-                        <ul style="margin-left: 2rem; margin-bottom: 1rem;">
-                            <li><code>orders</code> - Array of order objects with product details</li>
-                            <li><code>kpis</code> - Key performance indicators data</li>
-                            <li><code>updates</code> - Recent activity updates</li>
-                            <li><code>analytics</code> - Sales analytics data</li>
-                        </ul>
+                        <p><strong>Deployment:</strong> Single HTML file (self-contained) via GitHub Pages</p>
                     </div>
 
                     <div class="doc-section">
                         <h3>Navigation Instructions</h3>
                         <p>Use the sidebar menu on the left to navigate between sections. Click on any menu item to view that section's content.</p>
                         <p>The theme toggle button (in the top-right for desktop) switches between light and dark modes.</p>
-                        <p>All data filters and date pickers are functional for interactive data exploration.</p>
-                    </div>
-
-                    <div class="doc-section">
-                        <h3>Customization Guide</h3>
-                        <p>To customize this dashboard:</p>
-                        <ul style="margin-left: 2rem; margin-bottom: 1rem;">
-                            <li>Update the <code>orders</code> array with your actual data</li>
-                            <li>Modify KPI values in the cards section</li>
-                            <li>Add real charts using Chart.js or similar libraries (by adding CDN link)</li>
-                            <li>Change color scheme in the CSS variables section (:root)</li>
-                            <li>Update content in each section as needed</li>
-                        </ul>
+                        <p>On mobile devices, use the close button (×) to open/close the sidebar menu.</p>
                     </div>
 
                     <div class="doc-section">
@@ -1124,9 +1241,9 @@
                         <h3>Version Information</h3>
                         <p>Created by: Adythio Niramoyo (Student ID:24327875)</p>
                         <p>National College of Ireland (NCI)</p>
-                        <p>Dashboard Version: 1.0.0</p>
+                        <p>Dashboard Version: 1.17</p>
                         <p>Last Updated: December 2025</p>
-                        <p>For updates or support, refer to project documentation.</p>
+                        <p>For updates or support, refer to project documentation on GitHub.</p>
                     </div>
                 </div>
             </div>
@@ -1141,7 +1258,7 @@
                 </div>
                 <div class="profile">
                     <div class="info">
-                        <p>Hello, <b>Victor</b></p>
+                        <p>Hello, <b>Victor!</b></p>
                         <small class="text-muted">Welcome</small>
                     </div>
                     <div class="profile-photo">
@@ -1245,32 +1362,14 @@
         const sections = document.querySelectorAll('.section');
         const themeToggle = document.getElementById('theme-toggle');
         const dateInput = document.getElementById('dateInput');
+        const closeBtn = document.getElementById('close-btn');
 
-        // ========== POPULATE ORDERS TABLE ========== 
-        function populateOrdersTable() {
-            const tbody = document.getElementById('orders-body');
-            tbody.innerHTML = '';
-            
-            orders.forEach(order => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${order.productName}</td>
-                    <td>${order.number}</td>
-                    <td>${order.payment}</td>
-                    <td class="${getStatusClass(order.status)}">${order.status}</td>
-                    <td><a href="#" class="primary">Details</a></td>
-                `;
-                tbody.appendChild(tr);
+        // ========== HAMBURGER MENU - CLOSE BUTTON ========== 
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                const aside = document.querySelector('aside');
+                aside.classList.remove('active');
             });
-        }
-
-        function getStatusClass(status) {
-            switch(status) {
-                case 'Pending': return 'status-pending';
-                case 'Declined': return 'status-declined';
-                case 'Delivered': return 'status-delivered';
-                default: return '';
-            }
         }
 
         // ========== NAVIGATION ========== 
@@ -1288,6 +1387,12 @@
                 // Show selected section
                 const sectionId = link.getAttribute('data-section');
                 document.getElementById(sectionId).classList.add('active');
+                
+                // Close sidebar on mobile after selecting
+                const aside = document.querySelector('aside');
+                if (window.innerWidth <= 1200) {
+                    aside.classList.remove('active');
+                }
             });
         });
 
@@ -1350,38 +1455,6 @@
                     backgroundColor: '#ff5722',
                     borderRadius: 5
                 }]
-            },
-            userGrowth: {
-                labels: ['Q1 2019', 'Q2 2019', 'Q3 2019', 'Q4 2019', 'Q1 2020', 'Q2 2020'],
-                datasets: [{
-                    label: 'Monthly Active Users (Millions)',
-                    data: [45, 62, 78, 95, 120, 155],
-                    borderColor: '#ff5722',
-                    backgroundColor: 'rgba(255, 87, 34, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#ff5722',
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                }]
-            },
-            regionalPerformance: {
-                labels: ['Indonesia', 'Philippines', 'Thailand', 'Malaysia', 'Vietnam', 'Singapore'],
-                datasets: [{
-                    label: 'Revenue by Region (Billion USD)',
-                    data: [4.2, 2.1, 1.8, 1.5, 0.9, 0.36],
-                    backgroundColor: [
-                        'rgba(255, 87, 34, 0.8)',
-                        'rgba(255, 87, 34, 0.7)',
-                        'rgba(255, 87, 34, 0.6)',
-                        'rgba(255, 87, 34, 0.5)',
-                        'rgba(255, 87, 34, 0.4)',
-                        'rgba(255, 87, 34, 0.3)'
-                    ],
-                    borderColor: '#ff5722',
-                    borderWidth: 1,
-                    borderRadius: 5
-                }]
             }
         };
 
@@ -1440,47 +1513,6 @@
                         scales: {
                             x: { stacked: false },
                             y: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value + 'B'; } } }
-                        }
-                    }
-                });
-            }
-
-            // User Growth Line Chart
-            const userCtx = document.getElementById('userGrowthChart');
-            if (userCtx) {
-                new Chart(userCtx, {
-                    type: 'line',
-                    data: chartData.userGrowth,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: true, position: 'top' },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.7)' }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { callback: function(value) { return value + 'M'; } } }
-                        }
-                    }
-                });
-            }
-
-            // Regional Performance Bar Chart
-            const regionalCtx = document.getElementById('regionalPerformanceChart');
-            if (regionalCtx) {
-                new Chart(regionalCtx, {
-                    type: 'bar',
-                    data: chartData.regionalPerformance,
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { backgroundColor: 'rgba(0,0,0,0.7)' }
-                        },
-                        scales: {
-                            x: { beginAtZero: true, ticks: { callback: function(value) { return '$' + value + 'B'; } } }
                         }
                     }
                 });
